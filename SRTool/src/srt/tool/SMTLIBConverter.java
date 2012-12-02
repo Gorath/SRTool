@@ -21,6 +21,7 @@ public class SMTLIBConverter {
         String prog = "(set-logic QF_BV)\n";
         prog += "(declare-fun main() Bool)\n";
         prog += "(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))\n";
+        //prog += "(define-fun bvee ((ba BitVec 32)(bb BitVec 32)) Bool (and (bvsge ba bb) (bvsle ba bb)))\n";
 
         // Convert variable names to SMT-LIB syntax
         prog += generateVariableNames(variableNames);
