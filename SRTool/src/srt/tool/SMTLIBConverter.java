@@ -53,6 +53,10 @@ public class SMTLIBConverter {
 
     }
 
+    /* Function to generate the formula for assertion properties
+     * @param propertyExprs - the list of property expressions
+     * @param index         - the current index we are considering in propertyExprs
+     */
     private String generatePropertyFormula(List<Expr> propertyExprs, int index) {
          if (index == propertyExprs.size() - 1) {
             return  exprConverter.visit(propertyExprs.get(index));
