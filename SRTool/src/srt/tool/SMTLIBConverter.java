@@ -20,6 +20,7 @@ public class SMTLIBConverter {
 
         String prog = "(set-logic QF_BV)\n";
         prog += "(declare-fun main() Bool)\n";
+        prog += "(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))\n";
 
         // Convert variable names to SMT-LIB syntax
         prog += generateVariableNames(variableNames);
@@ -34,6 +35,7 @@ public class SMTLIBConverter {
         prog += generatePropertyFormula(propertyExprs,0);
         prog += ") ) ";
 
+        System.out.println(prog);
 
         query = new StringBuilder(prog);
         // TODO: Declare variables, add constraints, add properties to check
