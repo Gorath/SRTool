@@ -1,5 +1,6 @@
 package srt.tool;
 
+import com.sun.org.apache.xalan.internal.xsltc.runtime.Operators;
 import srt.ast.BinaryExpr;
 import srt.ast.DeclRef;
 import srt.ast.Expr;
@@ -77,11 +78,11 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 			case BinaryExpr.NEQUAL:
 				break;
 			case BinaryExpr.EQUAL:
-                //if (expr.getTokenInfo().toString().equals("==")) {
-
-                //} else {
+                if (expr.getTokenInfo().toString().equals("==")) {
+                    operator = "(ite (and %s %s) (_ bv1 32)(_ bv0 32))";
+                } else {
                     operator = "(= %s %s)";
-                //}
+                }
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid binary operator");
