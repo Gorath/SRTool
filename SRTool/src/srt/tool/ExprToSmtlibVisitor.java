@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package srt.tool;
 
 import srt.ast.BinaryExpr;
@@ -78,7 +77,6 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 			case BinaryExpr.NEQUAL:
 				break;
 			case BinaryExpr.EQUAL:
-               	case BinaryExpr.EQUAL:
                 if (expr.getTokenInfo().toString().equals("==")) {
                     operator = "(ite (and %s %s) (_ bv1 32)(_ bv0 32))";
                 } else {
