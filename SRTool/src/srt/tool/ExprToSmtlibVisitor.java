@@ -23,41 +23,63 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 				operator = "(bvadd %s %s)";
 				break;
 			case BinaryExpr.BAND:
-				break;
+                operator = "(bvand %s %s)";
+                break;
 			case BinaryExpr.BOR:
-				break;
+                operator = "(bvor %s %s)";
+                break;
 			case BinaryExpr.BXOR:
-				break;
+                operator = "(bvxor %s %s)";
+                break;
 			case BinaryExpr.DIVIDE:
-				break;
-			case BinaryExpr.LSHIFT:
-				break;
+                operator = "(bvsdiv %s %s)";
+                break;
+			case BinaryExpr.LSHIFT:   //NOTE help
+                operator = "(bvsdiv %s %s)";
+                break;
 			case BinaryExpr.MOD:
-				break;
+                operator = "(bvlshr %s %s)";
+                break;
 			case BinaryExpr.MULTIPLY:
-				break;
+                operator = "(bvmul %s %s)";
+                break;
 			case BinaryExpr.RSHIFT:
-				break;
+                operator = "(bvashr %s %s)";
+                break;
 			case BinaryExpr.SUBTRACT:
-				break;
-				
+                operator = "(bvsub   %s %s)";
+                break;
 			case BinaryExpr.LAND:
-				break;
+                operator = "(bvsdiv  %s %s)";
+
+                break;
 			case BinaryExpr.LOR:
-				break;
+                operator = "(bvsdiv  %s %s)";
+
+                break;
 			
 			case BinaryExpr.GEQ:
-				break;
+                operator = "(bvsdiv  %s %s)";
+
+                break;
 			case BinaryExpr.GT:
-				break;
+                operator = "(bvsdiv  %s %s)";
+
+                break;
 			case BinaryExpr.LEQ:
-				break;
+                operator = "(bvsdiv  %s %s)";
+
+                break;
 			case BinaryExpr.LT:
-				break;
+                operator = "(bvsdiv  %s %s)";
+
+                break;
 			case BinaryExpr.NEQUAL:
-				break;
+                operator = "(bvsdiv  %s %s)";
+
+                break;
 			case BinaryExpr.EQUAL:
-                operator = "(= %s %s)";
+                operator = "(bvcomp %s %s)";
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid binary operator");
