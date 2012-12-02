@@ -34,8 +34,8 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 			case BinaryExpr.DIVIDE:
                 operator = "(bvsdiv %s %s)";
                 break;
-			case BinaryExpr.LSHIFT:   //NOTE help
-                operator = "(bvsdiv %s %s)";
+			case BinaryExpr.LSHIFT:
+                operator = "(bvshl %s #x10000000)";
                 break;
 			case BinaryExpr.MOD:
                 operator = "(bvlshr %s %s)";
