@@ -1,4 +1,10 @@
 (set-logic QF_BV)
-(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))
-(check-sat)
+(declare-fun main() Bool)
+(declare-fun p () (_ BitVec 32))
+(declare-fun j () (_ BitVec 32))
+(declare-fun i () (_ BitVec 32))
+(assert (bvcomp i #x00000000))
+(assert (bvcomp j #x00000000))
+(assert (bvcomp p (bvcomp i j)))
+(assert (not p) ) (check-sat)
 

@@ -22,20 +22,15 @@ public class SMTLIBConverter {
         prog += "(declare-fun main() Bool)\n";
         prog += "(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))\n";
 
-        // Adds the variable names
-        for (String currentVariable : variableNames) {
-            prog += "(declare-fun " + currentVariable + " () (_ BitVec 32))\n";
+        // Convert variable names to SMT-LIB syntax
+        prog += generateVariableNames(variableNames);
 
-        }
-
-        // Visits the expression lists
         exprConverter = new ExprToSmtlibVisitor();
-        for (Expr exp : transitionExprs) {
-            prog += "(assert " + exprConverter.visit(exp) + ")\n";
 
-        }
+        // Convert transition expressions to SMT-LIB syntax
+        prog += generateTransitionExpressions(transitionExprs);
 
-        // Visits the propertyExpr's
+        // Convert property expressions to SMT-LIB syntax
         prog += "(assert (not ";
         prog += generatePropertyFormula(propertyExprs,0);
         prog += ") ) ";
@@ -43,22 +38,29 @@ public class SMTLIBConverter {
         System.out.println(prog);
 
         query = new StringBuilder(prog);
-        //query = new StringBuilder("(set-logic QF_BV)\n" +
-        //		"(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))\n");
-        // TODO: Define more functions above (for convenience), as needed.
-
         // TODO: Declare variables, add constraints, add properties to check
         // here.
 
-
         query.append("(check-sat)\n");
-
     }
 
-    /* Function to generate the formula for assertion properties
-     * @param propertyExprs - the list of property expressions
-     * @param index         - the current index we are considering in propertyExprs
-     */
+    private String generateVariableNames(Set<String> variableNames) {
+        String newVariableNames = "";
+        for (String currentVariable : variableNames) {
+            newVariableNames += "(declare-fun " + currentVariable + " () (_ BitVec 32))\n";
+        }
+        return newVariableNames;
+    }
+
+    private String generateTransitionExpressions(List<Expr> transitionExprs) {
+        String newTransitionExprs = "";
+        for (Expr exp : transitionExprs) {
+            newTransitionExprs += "(assert " + exprConverter.visit(exp) + ")\n";
+
+        }
+        return newTransitionExprs;
+    }
+
     private String generatePropertyFormula(List<Expr> propertyExprs, int index) {
          if (index == propertyExprs.size() - 1) {
             return  exprConverter.visit(propertyExprs.get(index));
