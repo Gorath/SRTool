@@ -75,11 +75,13 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 
                 break;
 			case BinaryExpr.NEQUAL:
-                operator = "(bvsdiv  %s %s)";
-
-                break;
+				break;
 			case BinaryExpr.EQUAL:
-                operator = "(bvcomp %s %s)";
+                //if (expr.getTokenInfo().toString().equals("==")) {
+
+                //} else {
+                    operator = "(= %s %s)";
+                //}
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid binary operator");
