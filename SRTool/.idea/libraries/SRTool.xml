@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="SRTool">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/antlr-3.4-complete.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jcommander.jar!/" />
+      <root url="jar://$PROJECT_DIR$/junit-4.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/antlr-3.4-main-source.zip!/" />
+      <root url="jar://$PROJECT_DIR$/junit-4.10-src.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
