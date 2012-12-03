@@ -52,6 +52,7 @@ public class SMTLIBConverter {
         // Print out the program (for debugging purposes only)
         System.out.println(prog);
 
+
         // Build the query string for the smt solver
         query = new StringBuilder(prog);
         query.append("(check-sat)\n");
@@ -61,6 +62,8 @@ public class SMTLIBConverter {
             query.append("prop" + i + " ");
         }
         query.append("))");
+
+        System.out.println(query.toString());
     }
 
     private String generatePropertyPredicates(List<Expr> propertyExprs, int index) {
@@ -99,6 +102,23 @@ public class SMTLIBConverter {
     public List<Integer> getPropertiesThatFailed(String queryResult) {
         List<Integer> res = new ArrayList<Integer>();
 
+        ////////////////////////////
+        /// Needs changing
+        ////////////////////////////
+        int i = 9;
+        int current = 0;
+        while (i < queryResult.length()) {
+           if(queryResult.charAt(i) == 't') {
+               i+= 12;
+            } else {
+               i += 13;
+               res.add(current);
+            }
+
+            current++;
+        }
+
+        System.out.println(queryResult);
         return res;
     }
 

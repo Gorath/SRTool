@@ -86,6 +86,7 @@ public class SRTool {
 			throw new SMTSolverTimeoutException("Timeout!");
 		}
 		System.out.println(queryResult);
+        System.out.println("--SMT COMPLETE--");
 
 		// Return the assertions that can be violated.
 		if (queryResult.startsWith("sat")) {
@@ -95,8 +96,10 @@ public class SRTool {
 			// TODO: Use "indexesFailed" after implementing
 			// "getPropertiesThatFailed".
 			// For now:
-
-			result.add(new AssertionFailure(null));
+            for (int i = 0; i < indexesFailed.size(); i++) {
+			    result.add(new AssertionFailure(ccv.propertyNodes.get(i).getTokenInfo()));
+                System.out.println("Assertion faliure on line " + ccv.propertyNodes.get(i).getTokenInfo().getLine());
+            }
 
 		} else if (!queryResult.startsWith("unsat")) {
 			throw new UnknownResultException();
