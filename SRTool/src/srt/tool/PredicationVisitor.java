@@ -1,10 +1,6 @@
 package srt.tool;
 
-import srt.ast.AssertStmt;
-import srt.ast.AssignStmt;
-import srt.ast.AssumeStmt;
-import srt.ast.HavocStmt;
-import srt.ast.IfStmt;
+import srt.ast.*;
 import srt.ast.visitor.impl.DefaultVisitor;
 
 public class PredicationVisitor extends DefaultVisitor {
@@ -15,6 +11,14 @@ public class PredicationVisitor extends DefaultVisitor {
 	
 	@Override
 	public Object visit(IfStmt ifStmt) {
+        Expr p = ifStmt.getCondition();
+        Stmt q = ifStmt.getThenStmt();
+        Stmt r = ifStmt.getElseStmt();
+
+
+
+        //TernaryExpr te = new TernaryExpr(p,q,null,);
+
 		return super.visit(ifStmt);
 	}
 
