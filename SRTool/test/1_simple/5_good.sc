@@ -20,10 +20,14 @@ void main(int x, int y, int n)
     modb = y % x;
     modn = n % y;
 
+    int un;
+    un = +(-(x--5));
+
     assert(band == 4);
     assert(bor == 6);
     assert(bxor == 2);
     assert(moda == 2);
     assert(modb == 4);
     assert(modn == 2);
+    assert(un == -11);
 }
