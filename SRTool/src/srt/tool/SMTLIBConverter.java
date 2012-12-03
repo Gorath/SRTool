@@ -18,11 +18,17 @@ public class SMTLIBConverter {
             throw new IllegalArgumentException("No assertions.");
         }
 
+        // Start building the query string
         String prog = "(set-logic QF_BV)\n";
         prog += "(declare-fun main() Bool)\n";
+
+        // Function to convert a boolean to a bitvector of length 32 of either all 1's or all 0's
         prog += "(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))\n";
+
+        // Function to take a bit vector of length 32 and send back a bool
+        // @result false if the input is all zeros
+        // @result true otherwise
         prog += "(define-fun tobool ((p (_ BitVec 32))) (Bool) (not (= p (_ bv0 32))))\n";
-        //prog += "(define-fun bvee ((ba BitVec 32)(bb BitVec 32)) Bool (and (bvsge ba bb) (bvsle ba bb)))\n";
 
         // Convert variable names to SMT-LIB syntax
         prog += generateVariableNames(variableNames);
@@ -37,12 +43,11 @@ public class SMTLIBConverter {
         prog += generatePropertyFormula(propertyExprs,0);
         prog += ") ) )";
 
+        // Print out the program (for debugging purposes only)
         System.out.println(prog);
 
+        // Build the query string for the smt solver
         query = new StringBuilder(prog);
-        // TODO: Declare variables, add constraints, add properties to check
-        // here.
-
         query.append("(check-sat)\n");
     }
 
