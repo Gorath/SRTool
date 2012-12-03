@@ -1,16 +1,8 @@
-void main()
+void main(int x, int y, int n)
 {
-
-    int x;
-    int y;
-	x = 8;
+	x = 6;
 	y = 4;
-    int n ;
-    n = -8;
-
-
-    int add;
-    add = x + y;
+    n = -2;
 
     int band;
     band = x & y;
@@ -21,31 +13,17 @@ void main()
     int bxor;
     bxor = x ^ y;
 
-    int div;
-    div = x / y;
-
-    int lsft;
-    lsft =   x << y;
-
-    int lsftn;
-    lsftn = n << y;
-
-    int mod ;
+    int moda;
+    int modb;
     int modn;
-    mod = x % y ;
+    moda = x % y;
+    modb = y % x;
     modn = n % y;
 
-    int sub;
-    sub = x - y;
-
-    assert (  add == 12);
-    assert (  band == 4);
-    assert (  bor == 12);
-    assert (  bxor == 12);
-    assert (  div == 2);
-    assert (  lsft == 128);
-    assert (  lsftn == -128);
-
-    assert ( sub == 4);
-
+    assert(band == 4);
+    assert(bor == 6);
+    assert(bxor == 2);
+    assert(moda == 2);
+    assert(modb == 4);
+    assert(modn == 2);
 }

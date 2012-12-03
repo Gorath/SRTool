@@ -35,10 +35,10 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
                 operator = "(bvsdiv %s %s)";
                 break;
 			case BinaryExpr.LSHIFT:
-                operator = "(bvshl %s #x10000000)";
+                operator = "(bvshl %s %s)";
                 break;
 			case BinaryExpr.MOD:
-                operator = "(bvlshr %s %s)";
+                operator = "(bvsmod %s %s)";
                 break;
 			case BinaryExpr.MULTIPLY:
                 operator = "(bvmul %s %s)";
@@ -50,10 +50,10 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
                 operator = "(bvsub   %s %s)";
                 break;
 			case BinaryExpr.LAND:
-                operator = "(tobv32 (bvsdiv  %s %s))";
+                operator = "(tobv32 (and  (tobool %s) (tobool %s)))";
                 break;
 			case BinaryExpr.LOR:
-                operator = "(tobv32 (bvsdiv  %s %s))";
+                operator = "(tobv32 (or  (tobool %s) (tobool %s)))";
                 break;
 			case BinaryExpr.GEQ:
                 operator = "(tobv32 (bvsge  %s %s))";
@@ -106,12 +106,13 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 			operator = "(bvneg %s)";
 			break;
 		case UnaryExpr.UPLUS:
+            operator = "%s";
 			break;
 		case UnaryExpr.LNOT:
-            operator = "(sjdkdfjs %s)";
+            operator = "(not (tobool %s))";
 			break;
 		case UnaryExpr.BNOT:
-            operator = "(sjdkdfjs2 %s)";
+            operator = "(bvnot %s)";
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid binary operator");
