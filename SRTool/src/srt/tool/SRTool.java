@@ -85,7 +85,7 @@ public class SRTool {
 		if (queryResult == null) {
 			throw new SMTSolverTimeoutException("Timeout!");
 		}
-		System.out.println(queryResult);
+		//System.out.println(queryResult);
         System.out.println("--SMT COMPLETE--");
 
 		// Return the assertions that can be violated.

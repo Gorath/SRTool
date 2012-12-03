@@ -49,10 +49,6 @@ public class SMTLIBConverter {
         prog += generatePropertyFormula(propertyExprs,0);
         prog += ") )";
 
-        // Print out the program (for debugging purposes only)
-        System.out.println(prog);
-
-
         // Build the query string for the smt solver
         query = new StringBuilder(prog);
         query.append("(check-sat)\n");
