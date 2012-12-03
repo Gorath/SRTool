@@ -33,20 +33,21 @@ public class SMTLIBConverter {
         // Convert variable names to SMT-LIB syntax
         prog += generateVariableNames(variableNames);
 
+        for (int i = 0; i < propertyExprs.size(); i++) {
+            prog += "(declare-fun prop" + i + " () (Bool))\n";
+        }
+
         exprConverter = new ExprToSmtlibVisitor();
 
         // Convert transition expressions to SMT-LIB syntax
         prog += generateTransitionExpressions(transitionExprs);
 
+        prog += generatePropertyPredicates(propertyExprs,0);
+
         // Convert property expressions to SMT-LIB syntax
         prog += "(assert (not ";
         prog += generatePropertyFormula(propertyExprs,0);
         prog += ") )";
-
-
-        // See which assertions failed
-
-
 
         // Print out the program (for debugging purposes only)
         System.out.println(prog);
@@ -54,6 +55,17 @@ public class SMTLIBConverter {
         // Build the query string for the smt solver
         query = new StringBuilder(prog);
         query.append("(check-sat)\n");
+
+        query.append("(get-value (");
+        for (int i = 0; i < propertyExprs.size(); i++) {
+            query.append("prop" + i + " ");
+        }
+        query.append("))");
+    }
+
+    private String generatePropertyPredicates(List<Expr> propertyExprs, int index) {
+            if (index == propertyExprs.size()) return "";
+            return "(assert (= prop" + index + " (tobool " + exprConverter.visit(propertyExprs.get(index)) + ")))\n" + generatePropertyPredicates(propertyExprs, index+1);
     }
 
     private String generateVariableNames(Set<String> variableNames) {
@@ -75,9 +87,9 @@ public class SMTLIBConverter {
 
     private String generatePropertyFormula(List<Expr> propertyExprs, int index) {
          if (index == propertyExprs.size() - 1) {
-            return  "(tobool " + exprConverter.visit(propertyExprs.get(index)) + ")";
+            return  "prop" + index;
          }
-         return  "(and (tobool" + exprConverter.visit(propertyExprs.get(index)) +") " + generatePropertyFormula(propertyExprs, index+1) + ")";
+         return "(and prop" + index +  " " + generatePropertyFormula(propertyExprs, index+1) + ")";
     }
 
     public String getQuery() {
