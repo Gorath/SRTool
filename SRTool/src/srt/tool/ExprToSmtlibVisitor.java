@@ -50,38 +50,28 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
                 operator = "(bvsub   %s %s)";
                 break;
 			case BinaryExpr.LAND:
-                operator = "(bvsdiv  %s %s)";
-
+                operator = "(tobv32 (bvsdiv  %s %s))";
                 break;
 			case BinaryExpr.LOR:
-                operator = "(bvsdiv  %s %s)";
-
+                operator = "(tobv32 (bvsdiv  %s %s))";
                 break;
-			
 			case BinaryExpr.GEQ:
-                operator = "(bvsdiv  %s %s)";
-
+                operator = "(tobv32 (bvsdiv  %s %s))";
                 break;
 			case BinaryExpr.GT:
-                operator = "(bvsdiv  %s %s)";
-
+                operator = "(tobv32 (bvsdiv  %s %s))";
                 break;
 			case BinaryExpr.LEQ:
-                operator = "(bvsdiv  %s %s)";
-
+                operator = "(tobv32 (bvsdiv  %s %s))";
                 break;
 			case BinaryExpr.LT:
-                operator = "(bvsdiv  %s %s)";
-
+                operator = "(tobv32 (bvsdiv  %s %s))";
                 break;
 			case BinaryExpr.NEQUAL:
+                operator = "(tobv32 (not (= %s %s)))";
 				break;
 			case BinaryExpr.EQUAL:
-                if (expr.getTokenInfo().toString().equals("==")) {
-                    operator = "(ite (and %s %s) (_ bv1 32)(_ bv0 32))";
-                } else {
-                    operator = "(= %s %s)";
-                }
+                    operator = "(tobv32 (= %s %s))";
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid binary operator");
@@ -118,8 +108,10 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 		case UnaryExpr.UPLUS:
 			break;
 		case UnaryExpr.LNOT:
+            operator = "(sjdkdfjs %s)";
 			break;
 		case UnaryExpr.BNOT:
+            operator = "(sjdkdfjs2 %s)";
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid binary operator");
