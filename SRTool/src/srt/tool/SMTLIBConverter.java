@@ -39,9 +39,14 @@ public class SMTLIBConverter {
         prog += generateTransitionExpressions(transitionExprs);
 
         // Convert property expressions to SMT-LIB syntax
-        prog += "(assert (not (tobool ";
+        prog += "(assert (not ";
         prog += generatePropertyFormula(propertyExprs,0);
-        prog += ") ) )";
+        prog += ") )";
+
+
+        // See which assertions failed
+
+
 
         // Print out the program (for debugging purposes only)
         System.out.println(prog);
@@ -70,9 +75,9 @@ public class SMTLIBConverter {
 
     private String generatePropertyFormula(List<Expr> propertyExprs, int index) {
          if (index == propertyExprs.size() - 1) {
-            return  exprConverter.visit(propertyExprs.get(index));
+            return  "(tobool " + exprConverter.visit(propertyExprs.get(index)) + ")";
          }
-         return  "(and " + exprConverter.visit(propertyExprs.get(index)) +" " + generatePropertyFormula(propertyExprs, index+1) + ")";
+         return  "(and (tobool" + exprConverter.visit(propertyExprs.get(index)) +") " + generatePropertyFormula(propertyExprs, index+1) + ")";
     }
 
     public String getQuery() {
