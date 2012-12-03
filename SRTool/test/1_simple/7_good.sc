@@ -10,7 +10,7 @@ void main(int i, int j, int k)
 
 	p = (i < j) || (i > j);
 	q = (j == k);
-	r = (p && q)
+	r = (p && q) ;
 
     assert(p);
     assert(q);

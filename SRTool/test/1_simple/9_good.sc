@@ -10,7 +10,7 @@ void main(int i, int j, int k)
 	int s;
 
 	p = i >> j;
-	q = k >> j
+	q = k >> j;
     r = k << j;
     s = i << j;
 
