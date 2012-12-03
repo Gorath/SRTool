@@ -48,3 +48,6 @@ Thumbs.db
 .idea/
 *.iml
 
+queryErr.txt
+queryIn.txt
+queryOut.txt
