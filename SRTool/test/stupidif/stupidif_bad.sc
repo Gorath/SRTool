@@ -5,9 +5,9 @@
 void main(int c, int d)
 {
 	int z;
-	
+
 	z=0;
-	
+
 	if(c)
 	{
 		z=1;
@@ -34,7 +34,7 @@ void main(int c, int d)
 		}
 		z=8;
 	}
-	
+
 	z=9;
 	
 	assert(0);
