@@ -94,11 +94,10 @@ public class SRTool {
 					.getPropertiesThatFailed(queryResult);
 
 			// TODO: Use "indexesFailed" after implementing
-			// "getPropertiesThatFailed".
-			// For now:
             for (int i = 0; i < indexesFailed.size(); i++) {
-			    result.add(new AssertionFailure(ccv.propertyNodes.get(i).getTokenInfo()));
-                System.out.println("Assertion faliure on line " + ccv.propertyNodes.get(i).getTokenInfo().getLine());
+                Tree tree = ccv.propertyNodes.get(indexesFailed.get(i)).getTokenInfo();
+			    result.add(new AssertionFailure(tree));
+                System.out.println("Assertion failure on line " + tree.getLine());
             }
 
 		} else if (!queryResult.startsWith("unsat")) {

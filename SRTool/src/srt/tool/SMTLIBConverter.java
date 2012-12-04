@@ -3,6 +3,8 @@ package srt.tool;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import srt.ast.Expr;
 
@@ -98,24 +100,13 @@ public class SMTLIBConverter {
     public List<Integer> getPropertiesThatFailed(String queryResult) {
         List<Integer> res = new ArrayList<Integer>();
 
-        ////////////////////////////
-        /// Needs changing
-        ////////////////////////////
-        int i = 9;
-        int current = 0;
-        while (i < queryResult.length()) {
-           if(queryResult.charAt(i) == 't') {
-               i+= 12;
-            } else {
-               i += 13;
-               res.add(current);
-            }
+        Pattern pattern = Pattern.compile("(\\d)(?=(\\s)*false)");
+        Matcher matcher = pattern.matcher(queryResult);
 
-            current++;
+        while (matcher.find()){
+            res.add(Integer.parseInt(matcher.group()));
         }
 
-        System.out.println(queryResult);
         return res;
     }
-
 }
