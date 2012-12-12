@@ -32,13 +32,16 @@ public class PredicationVisitor extends DefaultVisitor {
 
 	@Override
 	public Object visit(AssertStmt assertStmt) {
-
-        return super.visit(assertStmt);
+       BinaryExpr implication = new BinaryExpr(BinaryExpr.LOR , new UnaryExpr( UnaryExpr.LNOT , gAndP()) ,assertStmt.getCondition());
+//       BinaryExpr implication = new BinaryExpr(BinaryExpr.LOR , gAndP() ,assertStmt.getCondition());
+       return new AssertStmt(implication , assertStmt);
 	}
 
 	@Override
 	public Object visit(AssignStmt assignment) {
-		return super.visit(assignment);
+        DeclRef x = assignment.getLhs();
+        TernaryExpr te = new TernaryExpr(gAndP(),assignment.getRhs(),x);
+        return new AssignStmt(x ,te,assignment);
 	}
 
 	@Override
@@ -50,7 +53,7 @@ public class PredicationVisitor extends DefaultVisitor {
                                 new UnaryExpr(UnaryExpr.LNOT,gAndP()),
                                 condition);
         AssignStmt assign = new AssignStmt(A ,binaryExpr);
-        GLOBAL_PRED = new BinaryExpr(BinaryExpr.LAND, GLOBAL_PRED, A);
+        GLOBAL_PRED = new BinaryExpr(BinaryExpr.LAND, GLOBAL_PRED, binaryExpr);
         return new BlockStmt(new Stmt[]{declareStmnt,assign},assumeStmt);
 	}
 
@@ -64,7 +67,7 @@ public class PredicationVisitor extends DefaultVisitor {
          return new BlockStmt(new Stmt[]{declareStmnt,assign},havocStmt);
 	}
 
-    private BinaryExpr gAndP(){
-         return new BinaryExpr(BinaryExpr.LAND,GLOBAL_PRED,stack.peek());
+    private Expr gAndP(){
+        return new BinaryExpr(BinaryExpr.LAND,GLOBAL_PRED,stack.peek());
     }
 }
