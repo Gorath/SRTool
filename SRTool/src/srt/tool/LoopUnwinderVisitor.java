@@ -35,11 +35,30 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
         Stmt blockStatementBase = new BlockStmt(statementArray);
         Stmt whileBlock = whileStmt.getBody();
 
+        /*********************** insert invariant shit here ***************/
+
+        ExprList invariantsList = whileStmt.getInvariantList();
+        int numOfInvariants = invariantsList.getExprs().size();
+        Stmt[] invStmts = new Stmt[numOfInvariants];
+
+        for (int i = 0; i < numOfInvariants; i++) {
+            Expr e = invariantsList.getExprs().get(i);
+            Stmt assertStmt = new AssertStmt(e,e);
+            invStmts[i] = assertStmt;
+        }
+
+        Stmt blah = new BlockStmt(invStmts);
+        blockStatementBase = new BlockStmt(new Stmt[] {blah,blockStatementBase});
+
+        /******************************************************************/
+
         for (int i = 0; i < whileStmt.getBound().getValue(); i++) {      // Check if getbound is null
 
             blockStatementBase = new BlockStmt(new Stmt[]{whileBlock,blockStatementBase});
-
+            blockStatementBase = new BlockStmt(new Stmt[]{blah, blockStatementBase});
             blockStatementBase = new IfStmt(whileStmt.getCondition(), blockStatementBase , new EmptyStmt());
+
+
 
         }
 
