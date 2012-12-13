@@ -17,6 +17,7 @@ public class SSAVisitor extends DefaultVisitor {
     }
 
     private String getSSAName(String name) {
+        if (index.get(name) == null) index.put(name,0);
         int i = index.get(name);
         return name + "$" + i;
     }

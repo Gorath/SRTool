@@ -41,9 +41,10 @@ public class WhileStmt extends Stmt {
 
     @Override
     public ArrayList<Node> getModSet() {
-        ArrayList<Node> modSet = new ArrayList<Node>();
+        /*ArrayList<Node> modSet = new ArrayList<Node>();
         modSet.addAll(this.getBody().getModSet());
-        return modSet;
+        return modSet;*/
+        return new ArrayList<Node>();
     }
 
 }

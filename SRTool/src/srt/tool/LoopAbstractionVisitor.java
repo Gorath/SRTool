@@ -3,6 +3,7 @@ package srt.tool;
 import srt.ast.*;
 import srt.ast.visitor.impl.DefaultVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LoopAbstractionVisitor extends DefaultVisitor {
@@ -22,15 +23,18 @@ public class LoopAbstractionVisitor extends DefaultVisitor {
 
         ExprList invariantsList = whileStmt.getInvariantList();
         int numOfInvariants = invariantsList.getExprs().size();
-        Stmt[] invStmts = new Stmt[numOfInvariants];
+        Stmt[] invAssert = new Stmt[numOfInvariants];
+        Stmt[] invAssume = new Stmt[numOfInvariants];
 
         for (int i = 0; i < numOfInvariants; i++) {
             Expr e = invariantsList.getExprs().get(i);
             Stmt assertStmt = new AssertStmt(e,e);
-            invStmts[i] = assertStmt;
+            Stmt assumeStmt = new AssumeStmt(e,e);
+            invAssert[i] = assertStmt;
+            invAssume[i] = assumeStmt;
         }
 
-        Stmt invariantAssertions = new BlockStmt(invStmts);
+        Stmt invariantAssertions = new BlockStmt(invAssert);
 
         returnStatement = new BlockStmt(new Stmt[]{invariantAssertions});
 
@@ -39,19 +43,34 @@ public class LoopAbstractionVisitor extends DefaultVisitor {
         /*********************************************/
 
         Stmt whileBody = whileStmt.getBody();
-        List<Node> whileChildren = whileBody.getChildrenCopy();
+        ArrayList<Node> modset = whileBody.getModSet();
+
+        //************************** REMOVE DUPLICATES?? **********************/
+
+        Stmt[] stmts = new Stmt[modset.size()];
+        for (int i = 0; i < modset.size(); i++){
+            Stmt havocMod = new HavocStmt((DeclRef)modset.get(i),whileStmt);
+            stmts[i] = havocMod;
+        }
+
+        returnStatement = new BlockStmt(new Stmt[]{returnStatement,new BlockStmt(stmts)});
 
 
         /**********************************************/
         /************   Assume the invariants  ********/
         /*********************************************/
 
-
+         returnStatement = new BlockStmt(new Stmt[] {returnStatement,new BlockStmt(invAssume)});
 
         /**********************************************/
         /************  Execute loop body once  ********/
         /*********************************************/
 
+        Stmt ifbody = new BlockStmt(new Stmt[]{whileBody,new BlockStmt(invAssert),new AssumeStmt(new IntLiteral(0))});
+
+        Stmt ifStmt = new IfStmt(whileStmt.getCondition(),ifbody,new EmptyStmt(), whileStmt);
+
+        returnStatement = new BlockStmt(new Stmt[] {returnStatement,ifStmt},whileStmt);
 
 
         /**********************************************/
@@ -59,9 +78,9 @@ public class LoopAbstractionVisitor extends DefaultVisitor {
         /*********************************************/
 
 
+        return super.visit(returnStatement);
 
 
-		return super.visit(whileStmt);
 	}
 
     //private Node[] getModSet(Node n) {
