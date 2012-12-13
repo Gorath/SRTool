@@ -1,5 +1,5 @@
 
-void main(int i,	int j, int z)
+void main(int i,int j, int z)
 {
 	if(i==j)
 	{

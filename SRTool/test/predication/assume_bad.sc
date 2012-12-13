@@ -8,8 +8,6 @@ void main(int a)
     }         else{
         a = 4 ;
     }
-    assert( a == 4);
-      assume (1);
-      assert(a == 4);
-
+    assume (a==3);
+    assert (a==4);
 }
