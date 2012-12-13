@@ -1,6 +1,8 @@
 package srt.ast;
 
 
+import java.util.ArrayList;
+
 public class AssignStmt extends Stmt {
 	
 	public AssignStmt(DeclRef lhs, Expr rhs) {
@@ -21,5 +23,12 @@ public class AssignStmt extends Stmt {
 	public Expr getRhs() {
 		return (Expr) children.get(1);
 	}
-	
+
+    @Override
+    public ArrayList<Node> getModSet() {
+        ArrayList<Node> modSet = new ArrayList<Node>();
+        modSet.add(this.getLhs());
+        return modSet;
+    }
+
 }

@@ -42,5 +42,9 @@ public abstract class Node implements Cloneable {
 			return new CommonTree((CommonTree) tokenInfo);
 		}
 	}
+
+    public ArrayList<Node> getModSet() {
+        return new ArrayList<Node>();
+    }
 	
 }

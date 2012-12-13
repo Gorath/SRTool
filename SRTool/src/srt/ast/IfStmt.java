@@ -1,5 +1,7 @@
 package srt.ast;
 
+import java.util.ArrayList;
+
 public class IfStmt extends Stmt {
 	
 	public IfStmt(Expr condition, Stmt thenStmt, Stmt elseStmt) {
@@ -32,5 +34,13 @@ public class IfStmt extends Stmt {
 	{
 		return (Stmt) children.get(2);
 	}
-	
+
+    @Override
+    public ArrayList<Node> getModSet() {
+        ArrayList<Node> modSet = new ArrayList<Node>();
+        modSet.addAll(this.getThenStmt().getModSet());
+        modSet.addAll(this.getElseStmt().getModSet());
+        return modSet;
+    }
+
 }

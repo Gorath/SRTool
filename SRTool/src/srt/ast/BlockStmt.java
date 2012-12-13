@@ -1,5 +1,6 @@
 package srt.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BlockStmt extends Stmt {
@@ -34,4 +35,13 @@ public class BlockStmt extends Stmt {
 	public StmtList getStmtList() {
 		return (StmtList) children.get(0);
 	}
+
+    @Override
+    public ArrayList<Node> getModSet() {
+        ArrayList<Node> modset = new ArrayList<Node>();
+        for(Stmt s : this.getStmtList().getStatements()) {
+             modset.addAll(s.getModSet());
+        }
+        return modset;
+    }
 }

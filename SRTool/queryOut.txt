@@ -1,9 +1,2 @@
-sat
-((prop0 true)
- (prop1 true)
- (prop2 true)
- (prop3 false)
- (prop4 true)
- (prop5 false)
- (prop6 true)
- (prop7 true))
+unsat
+(error "line 39 column 61: model is not available")

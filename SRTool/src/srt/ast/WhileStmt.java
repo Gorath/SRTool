@@ -1,5 +1,7 @@
 package srt.ast;
 
+import java.util.ArrayList;
+
 public class WhileStmt extends Stmt {
 	
 	public WhileStmt(Expr condition, IntLiteral bound, ExprList invariants, Stmt body) {
@@ -36,4 +38,12 @@ public class WhileStmt extends Stmt {
 	public Stmt getBody() {
 		return (Stmt) children.get(3);
 	}
+
+    @Override
+    public ArrayList<Node> getModSet() {
+        ArrayList<Node> modSet = new ArrayList<Node>();
+        modSet.addAll(this.getBody().getModSet());
+        return modSet;
+    }
+
 }

@@ -1,5 +1,6 @@
 package srt.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StmtList extends Node {
@@ -29,5 +30,14 @@ public class StmtList extends Node {
 	{
 		return (List<Stmt>)children.clone();
 	}
+
+    @Override
+    public ArrayList<Node> getModSet() {
+        ArrayList<Node> modSet = new ArrayList<Node>();
+        for (Stmt s : this.getStatements()) {
+            modSet.addAll(s.getModSet());
+        }
+        return modSet;
+    }
 	
 }
