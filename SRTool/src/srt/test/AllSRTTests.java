@@ -29,6 +29,7 @@ public class AllSRTTests {
 		tests.addTest(getTestsInDir("SRTool/test/unaryops", clargs));
 		tests.addTest(getTestsInDir("SRTool/test/predication", clargs));
 		tests.addTest(getTestsInDir("SRTool/test/SSA", clargs));
+		tests.addTest(getTestsInDir("SRTool/test/loop", clargs));
 
 		// unwinding-assertions=false tests
 		// (comment out these lines while testing loop free programs)

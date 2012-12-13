@@ -1,8 +1,11 @@
 package srt.tool;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
@@ -96,8 +99,16 @@ public class SRTool {
 			// TODO: Use "indexesFailed" after implementing
             for (int i = 0; i < indexesFailed.size(); i++) {
                 Tree tree = ccv.propertyNodes.get(indexesFailed.get(i)).getTokenInfo();
-			    result.add(new AssertionFailure(tree));
-                System.out.println("Assertion failure on line " + tree.getLine());
+                boolean add = true;
+                //dont report this failure if it has already been repported.
+                for (AssertionFailure assertionFailure : result){
+                    if ( assertionFailure.tokenInfo.getLine() == tree.getLine() &&
+                         assertionFailure.tokenInfo.getCharPositionInLine() == tree.getCharPositionInLine()) add = false;
+                }
+                if (add) {
+                    System.out.printf("Assertion failure on line:%s column:%s .\n" , tree.getLine(), tree.getCharPositionInLine());
+                    result.add(new AssertionFailure(tree));
+                }
             }
 
 		} else if (!queryResult.startsWith("unsat")) {
