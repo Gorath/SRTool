@@ -34,10 +34,8 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
         statements.addAll(loopEnd);
 
         //use default bound if bound provided is 0; (int cant be null therefore we
-        int bound = whileStmt.getBound().getValue();
-        if (bound == 0 ) {
-            bound = defaultUnwindBound;
-        }
+        int bound = whileStmt.getBound() == null? defaultUnwindBound : whileStmt.getBound().getValue();
+
 
         //if we are not unwinding just check all the constraints.
         if (bound == 0){

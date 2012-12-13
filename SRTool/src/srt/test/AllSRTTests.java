@@ -25,23 +25,25 @@ public class AllSRTTests {
 		tests.addTest(getTestsInDir("SRTool/test/1_simple", clargs));
 		tests.addTest(getTestsInDir("SRTool/test/asserts", clargs));
 		tests.addTest(getTestsInDir("SRTool/test/binops", clargs));
-		tests.addTest(getTestsInDir("SRTool/test/otherops", clargs));
-		tests.addTest(getTestsInDir("SRTool/test/unaryops", clargs));
+        tests.addTest(getTestsInDir("SRTool/test/loop", clargs));
+        tests.addTest(getTestsInDir("SRTool/test/otherops", clargs));
 		tests.addTest(getTestsInDir("SRTool/test/predication", clargs));
 		tests.addTest(getTestsInDir("SRTool/test/SSA", clargs));
-		tests.addTest(getTestsInDir("SRTool/test/loop", clargs));
+        tests.addTest(getTestsInDir("SRTool/test/stupidif", clargs));
+        tests.addTest(getTestsInDir("SRTool/test/unaryops", clargs));
 
-		// unwinding-assertions=false tests
+        // unwinding-assertions=false tests
 		// (comment out these lines while testing loop free programs)
 		clargs = new CLArgs();
 		clargs.unwindingAssertions = false;
-		/*tests.addTest(getTestsInDir("testunsound", clargs));  */  // Remove comment later
+		tests.addTest(getTestsInDir("SRTool/testunsound/", clargs));    // Remove comment later
 		
 		// loop abstraction tests
 		// (comment out these lines while testing the bounded model checker)
 		clargs = new CLArgs();
 		clargs.abstractLoops = true;
-		/*tests.addTest(getTestsInDir("testloopabs", clargs));*/    // Remove comment later
+        tests.addTest(getTestsInDir("SRTool/testloopabs/", clargs));
+
 
 		return tests;
 	}
