@@ -55,14 +55,14 @@ public class PredicationVisitor extends DefaultVisitor {
         statements.add(assignR);
         statements.add(qBranch);
         statements.add(rBranch);
-        return new BlockStmt(statements,ifStmt);
+        return super.visit( new BlockStmt(statements,ifStmt));
 	}
 
 	@Override
 	public Object visit(AssertStmt assertStmt) {
          // return not ( p and G ) or  E  which is the same as P and G implies E
         BinaryExpr implication = new BinaryExpr(BinaryExpr.LOR , new UnaryExpr( UnaryExpr.LNOT , gAndP()) ,assertStmt.getCondition());
-       return new AssertStmt(implication , assertStmt);
+       return super.visit( new  AssertStmt(implication , assertStmt));
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class PredicationVisitor extends DefaultVisitor {
         //replace x = y by  x = P && G ? y :x
         DeclRef x = assignment.getLhs();
         TernaryExpr te = new TernaryExpr(gAndP(),assignment.getRhs(),x);
-        return new AssignStmt(x ,te,assignment);
+        return super.visit(new AssignStmt(x ,te,assignment));
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class PredicationVisitor extends DefaultVisitor {
         //Global pred = global pred && A
         GLOBAL_PRED = new BinaryExpr(BinaryExpr.LAND, GLOBAL_PRED, A);
         //return A
-        return new BlockStmt(new Stmt[]{declareStmnt,assign},assumeStmt);
+        return super.visit( new BlockStmt(new Stmt[]{declareStmnt,assign},assumeStmt));
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class PredicationVisitor extends DefaultVisitor {
          TernaryExpr te = new TernaryExpr(gAndP(),h,x);
          // x =  ( g and p ) ? h : x
          AssignStmt assign = new AssignStmt(x ,te);
-         return new BlockStmt(new Stmt[]{declareStmnt,assign},havocStmt);
+         return super.visit(new BlockStmt(new Stmt[]{declareStmnt,assign},havocStmt));
 	}
 
     private Expr gAndP(){

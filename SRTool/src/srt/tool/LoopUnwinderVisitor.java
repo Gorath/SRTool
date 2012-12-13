@@ -3,6 +3,9 @@ package srt.tool;
 import srt.ast.*;
 import srt.ast.visitor.impl.DefaultVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LoopUnwinderVisitor extends DefaultVisitor {
 
 	private boolean unwindingAssertions;
@@ -17,57 +20,85 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
 
 	@Override
 	public Object visit(WhileStmt whileStmt) {
+        Stmt whileBody= whileStmt.getBody();
 
+        //these are the final statements produced by this method.
+        List<Stmt> statements = new ArrayList<Stmt>();
+
+        List<Stmt> assertions  = generateAssertionsFromInvariants(whileStmt);
+        List<Stmt> loopEnd = generateLoopEnd(whileStmt);
+
+        //even if we dont unwind the loop we will assert that the invariants still hold
+        //and reason about the uenwinding depth.
+        statements.addAll(assertions);
+        statements.addAll(loopEnd);
+
+        //use default bound if bound provided is 0; (int cant be null therefore we
+        int bound = whileStmt.getBound().getValue();
+        if (bound == 0 ) {
+            bound = defaultUnwindBound;
+        }
+
+        //if we are not unwinding just check all the constraints.
+        if (bound == 0){
+            return convertListToStatement(statements,whileStmt);
+        }
+
+        //unwind the loop as:
+        // assertions + while body
+        for (int i = 0; i < bound; i++) {
+            List<Stmt> tmp = new ArrayList<Stmt>();
+            tmp.addAll(assertions);
+            //removes unecessary block statments... final output looks nicer
+            //although predication and SSA destroy it later.. but easier to debug.
+            if ( whileBody instanceof  BlockStmt){
+                tmp.addAll(((BlockStmt) whileBody).getStmtList().getStatements());
+            }else{
+                tmp.add(whileBody);
+            }
+            tmp.addAll(statements);
+            IfStmt ifStmt = new IfStmt(whileStmt.getCondition(), new BlockStmt(tmp) , new EmptyStmt());
+            //the new ifstatement consumes all  the previous statements.
+            statements.clear();
+            statements.add(ifStmt);
+        }
+
+        return super.visit( convertListToStatement(statements,whileStmt));
+	}
+
+    //thereshould be atleast one statement.
+    private static Stmt convertListToStatement(List<Stmt> statements, Node basedOn){
+        if (statements.size() > 1){
+            return new BlockStmt(statements,basedOn);
+        }
+        return  statements.get(0);
+    }
+
+    //this method generates the last assertions or assume for unwinding
+    private List<Stmt> generateLoopEnd(WhileStmt whileStmt){
 
         AssertStmt loopAssert = new AssertStmt(new UnaryExpr(UnaryExpr.LNOT,whileStmt.getCondition()),whileStmt);
         AssumeStmt loopAssume = new AssumeStmt(new UnaryExpr(UnaryExpr.LNOT,whileStmt.getCondition()));
 
-        Stmt[] statementArray;
+        List<Stmt> statements = new ArrayList<Stmt>();
         if (unwindingAssertions) {
-            statementArray = new Stmt[2];
-            statementArray[0] = loopAssert;
-            statementArray[1] = loopAssume;
+            statements.add(loopAssert);
+            statements.add(loopAssume);
         } else {
-            statementArray = new Stmt[1];
-            statementArray[0] = loopAssume;
+            statements.add(loopAssume);
         }
+        return  statements;
+    }
 
-        Stmt blockStatementBase = new BlockStmt(statementArray);
-        Stmt whileBlock = whileStmt.getBody();
-
-        /*********************** insert invariant shit here ***************/
-
-        ExprList invariantsList = whileStmt.getInvariantList();
-        int numOfInvariants = invariantsList.getExprs().size();
-        Stmt[] invStmts = new Stmt[numOfInvariants];
-
-        for (int i = 0; i < numOfInvariants; i++) {
-            Expr e = invariantsList.getExprs().get(i);
-            Stmt assertStmt = new AssertStmt(e,e);
-            invStmts[i] = assertStmt;
+    // this method converts each invariant to an assertion
+    private  List<Stmt> generateAssertionsFromInvariants(WhileStmt whileStmt){
+        List<Stmt> statements = new ArrayList<Stmt>();
+        List<Expr> invariantsList = whileStmt.getInvariantList().getExprs();
+        for (Expr expression: invariantsList) {
+            Stmt assertStmt = new AssertStmt(expression,expression);
+            statements.add(assertStmt);
         }
+        return  statements;
 
-        Stmt blah = new BlockStmt(invStmts);
-        blockStatementBase = new BlockStmt(new Stmt[] {blah,blockStatementBase});
-
-        /******************************************************************/
-
-        for (int i = 0; i < whileStmt.getBound().getValue(); i++) {      // Check if getbound is null
-
-            blockStatementBase = new BlockStmt(new Stmt[]{whileBlock,blockStatementBase});
-            blockStatementBase = new BlockStmt(new Stmt[]{blah, blockStatementBase});
-            blockStatementBase = new IfStmt(whileStmt.getCondition(), blockStatementBase , new EmptyStmt());
-
-
-
-        }
-
-        Stmt w2 = new BlockStmt(new Stmt[]{blockStatementBase},whileBlock);
-
-        return super.visit(w2);
-
-        //return super.visit(whileStmt);
-
-	}
-
+    }
 }

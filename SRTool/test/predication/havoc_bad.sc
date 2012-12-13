@@ -1,9 +1,7 @@
-
-void main(int a)
+void main()
 {
-	a = 2;
-	// should get new SSA index
-	havoc(a);
-	
-    assert(a != 2);
+    int x;
+    x = 2;
+    havoc(x);
+    assert(x==2);
 }
