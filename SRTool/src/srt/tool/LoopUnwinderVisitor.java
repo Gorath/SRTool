@@ -47,13 +47,7 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
         for (int i = 0; i < bound; i++) {
             List<Stmt> tmp = new ArrayList<Stmt>();
             tmp.addAll(invariants);
-            //removes unecessary block statments... final output looks nicer
-            //although predication and SSA destroy it later.. but easier to debug.
-            if ( whileBody instanceof  BlockStmt){
-                tmp.addAll(((BlockStmt) whileBody).getStmtList().getStatements());
-            }else{
-                tmp.add(whileBody);
-            }
+            removeBlockStatements(tmp, whileBody);
             tmp.addAll(statements);
             IfStmt ifStmt = new IfStmt(whileStmt.getCondition(), new BlockStmt(tmp) , new EmptyStmt());
             //the new ifstatement consumes all  the previous statements.
@@ -63,6 +57,16 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
 
         return super.visit( convertListToStatement(statements,whileStmt));
 	}
+
+    private void removeBlockStatements(List<Stmt> statements, Stmt whileBody){
+        //removes unecessary block statments... final output looks nicer
+        //although predication and SSA destroy it later.. but easier to debug.
+        if ( whileBody instanceof  BlockStmt){
+            statements.addAll(((BlockStmt) whileBody).getStmtList().getStatements());
+        }else{
+            statements.add(whileBody);
+        }
+    }
 
     //there should be atleast one statement.
     private static Stmt convertListToStatement(List<Stmt> statements, Node basedOn){
