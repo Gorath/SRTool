@@ -42,32 +42,32 @@ public class PredicationVisitor extends DefaultVisitor {
         Expr e = ifStmt.getCondition();
 
         // p && e
-        Expr q = new BinaryExpr(BinaryExpr.LAND,basePredicateStack.peek(), e);
+        Expr qExpression = new BinaryExpr(BinaryExpr.LAND,basePredicateStack.peek(), e);
 
         // p && !e
-        Expr r = new BinaryExpr(BinaryExpr.LAND,basePredicateStack.peek(),new UnaryExpr(UnaryExpr.LNOT, e));
+        Expr rExpression = new BinaryExpr(BinaryExpr.LAND,basePredicateStack.peek(),new UnaryExpr(UnaryExpr.LNOT, e));
 
         // Declare P and Q variables and assign values appropriately.
-        DeclRef Q = new DeclRef(getNextName());
-        DeclRef R = new DeclRef(getNextName());
-        Decl declareQ = new Decl(Q.getName(), DEFAULT_VARIABLE_TYPE);
-        Decl declareR = new Decl(R.getName(), DEFAULT_VARIABLE_TYPE);
+        DeclRef q = new DeclRef(getNextName());
+        DeclRef r = new DeclRef(getNextName());
+        Decl declareQ = new Decl(q.getName(), DEFAULT_VARIABLE_TYPE);
+        Decl declareR = new Decl(r.getName(), DEFAULT_VARIABLE_TYPE);
 
         // Q = p && !e
-        AssignStmt assignQ = new AssignStmt(Q, q);
+        AssignStmt assignQ = new AssignStmt(q, qExpression);
         // R = p && !e
-        AssignStmt assignR = new AssignStmt(R, r);
+        AssignStmt assignR = new AssignStmt(r, rExpression);
 
         // Push Q and make it the current local predicate
         // Then visit the if branch
-        basePredicateStack.push(Q);
+        basePredicateStack.push(q);
         Stmt qBranch = (Stmt)visit(ifStmt.getThenStmt());
         // Pop it out so that it is not the current local predicate
         basePredicateStack.pop();
 
         // Push R and make it the current local predicate
         // Then visit the else branch
-        basePredicateStack.push(R);
+        basePredicateStack.push(r);
         Stmt rBranch = (Stmt)visit(ifStmt.getElseStmt());
         // Pop it out so that it is not the current local predicate
         basePredicateStack.pop();
