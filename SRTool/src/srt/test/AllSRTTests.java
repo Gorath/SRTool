@@ -22,15 +22,15 @@ public class AllSRTTests {
 		CLArgs clargs = new CLArgs();
 		
 		// bounded model checker tests
-		tests.addTest(getTestsInDir("SRTool/test/1_simple", clargs));
-		tests.addTest(getTestsInDir("SRTool/test/asserts", clargs));
-		tests.addTest(getTestsInDir("SRTool/test/binops", clargs));
-        tests.addTest(getTestsInDir("SRTool/test/loop", clargs));
-        tests.addTest(getTestsInDir("SRTool/test/otherops", clargs));
-		tests.addTest(getTestsInDir("SRTool/test/predication", clargs));
-		tests.addTest(getTestsInDir("SRTool/test/SSA", clargs));
-        tests.addTest(getTestsInDir("SRTool/test/stupidif", clargs));
-        tests.addTest(getTestsInDir("SRTool/test/unaryops", clargs));
+//		tests.addTest(getTestsInDir("SRTool/test/1_simple", clargs));
+//		tests.addTest(getTestsInDir("SRTool/test/asserts", clargs));
+//		tests.addTest(getTestsInDir("SRTool/test/binops", clargs));
+//        tests.addTest(getTestsInDir("SRTool/test/loop", clargs));
+//        tests.addTest(getTestsInDir("SRTool/test/otherops", clargs));
+//		tests.addTest(getTestsInDir("SRTool/test/predication", clargs));
+//		tests.addTest(getTestsInDir("SRTool/test/SSA", clargs));
+//        tests.addTest(getTestsInDir("SRTool/test/stupidif", clargs));
+//        tests.addTest(getTestsInDir("SRTool/test/unaryops", clargs));
 
         // unwinding-assertions=false tests
 		// (comment out these lines while testing loop free programs)

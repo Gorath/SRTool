@@ -43,6 +43,11 @@ public abstract class Node implements Cloneable {
 		}
 	}
 
+    /*
+    returns the modifies set of this node.
+    it is cleaner to do this like this instead of writing a massive function which would be
+    harder to maintain and extend
+    */
     public ArrayList<Node> getModSet() {
         return new ArrayList<Node>();
     }

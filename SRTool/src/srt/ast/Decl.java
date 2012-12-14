@@ -1,5 +1,8 @@
 package srt.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Decl extends Stmt {
 	
 	private String name;
@@ -22,5 +25,12 @@ public class Decl extends Stmt {
 	public String getType() {
 		return type;
 	}
+//
+//    @Override
+//    public ArrayList<Node> getModSet() {
+//        ArrayList<Node> result =  new ArrayList<Node>();
+//        result.add(new DeclRef(this.name));
+//        return  result;
+//    }
 	
 }

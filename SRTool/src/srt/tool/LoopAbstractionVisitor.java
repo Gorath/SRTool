@@ -5,6 +5,7 @@ import srt.ast.visitor.impl.DefaultVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class LoopAbstractionVisitor extends DefaultVisitor {
 
@@ -15,76 +16,67 @@ public class LoopAbstractionVisitor extends DefaultVisitor {
 	@Override
 	public Object visit(WhileStmt whileStmt) {
 
-        Stmt returnStatement;
+        List<Stmt> statements = new ArrayList<Stmt>();
 
-        /**********************************************/
         /************ Assert of all invariants ********/
-        /*********************************************/
+        List<Stmt> assertions =  new ArrayList<Stmt>();
+        List<Stmt> assumptions =  new ArrayList<Stmt>();
+        generateAssertionsAndAssumptions(assertions,assumptions,whileStmt);
 
-        ExprList invariantsList = whileStmt.getInvariantList();
-        int numOfInvariants = invariantsList.getExprs().size();
-        Stmt[] invAssert = new Stmt[numOfInvariants];
-        Stmt[] invAssume = new Stmt[numOfInvariants];
+        statements.addAll(assertions);
 
-        for (int i = 0; i < numOfInvariants; i++) {
-            Expr e = invariantsList.getExprs().get(i);
-            Stmt assertStmt = new AssertStmt(e,e);
-            Stmt assumeStmt = new AssumeStmt(e,e);
-            invAssert[i] = assertStmt;
-            invAssume[i] = assumeStmt;
-        }
 
-        Stmt invariantAssertions = new BlockStmt(invAssert);
-
-        returnStatement = new BlockStmt(new Stmt[]{invariantAssertions});
-
-        /**********************************************/
         /************       Havoc modset       ********/
-        /*********************************************/
-
         Stmt whileBody = whileStmt.getBody();
         ArrayList<Node> modset = whileBody.getModSet();
+        ArrayList<DeclRef> filteredModset =  new ArrayList<DeclRef>();
 
-        //************************** REMOVE DUPLICATES?? **********************/
-
-        Stmt[] stmts = new Stmt[modset.size()];
-        for (int i = 0; i < modset.size(); i++){
-            Stmt havocMod = new HavocStmt((DeclRef)modset.get(i),whileStmt);
-            stmts[i] = havocMod;
+        /*******************REMOVE DUPLICATES*************/
+        for ( Node n : modset){
+            boolean duplicate = false;
+            for ( Node existing : filteredModset){
+                 if (((DeclRef)existing).getName().equals(((DeclRef)n).getName()) ){
+                     duplicate = true;
+                     break;
+                 }
+            }
+            if (!duplicate) filteredModset.add((DeclRef)n);
         }
 
-        returnStatement = new BlockStmt(new Stmt[]{returnStatement,new BlockStmt(stmts)});
 
+        List<Stmt> havocs = new ArrayList<Stmt>();
+        for (DeclRef variable :filteredModset){
+            havocs.add(new HavocStmt(variable));
+        }
 
-        /**********************************************/
+        statements.addAll(havocs);
+
         /************   Assume the invariants  ********/
-        /*********************************************/
+        statements.addAll(assumptions);
 
-         returnStatement = new BlockStmt(new Stmt[] {returnStatement,new BlockStmt(invAssume)});
-
-        /**********************************************/
         /************  Execute loop body once  ********/
-        /*********************************************/
+        List<Stmt> ifBody = new ArrayList<Stmt>();
+        if ( whileBody instanceof  BlockStmt){
+            ifBody.addAll(((BlockStmt)whileBody).getStmtList().getStatements());
+        }   else{
+            ifBody.add(whileBody);
+        }
+        ifBody.addAll(assertions);
+        ifBody.add(new AssumeStmt(new IntLiteral(0)));
 
-        Stmt ifbody = new BlockStmt(new Stmt[]{whileBody,new BlockStmt(invAssert),new AssumeStmt(new IntLiteral(0))});
+        Stmt ifStmt = new IfStmt(whileStmt.getCondition(),new BlockStmt(ifBody),new EmptyStmt(), whileStmt);
 
-        Stmt ifStmt = new IfStmt(whileStmt.getCondition(),ifbody,new EmptyStmt(), whileStmt);
+        statements.add(ifStmt);
 
-        returnStatement = new BlockStmt(new Stmt[] {returnStatement,ifStmt},whileStmt);
-
-
-        /**********************************************/
-        /************        Done              ********/
-        /*********************************************/
-
-
-        return super.visit(returnStatement);
-
-
+        return super.visit(new BlockStmt(statements,whileStmt));
 	}
 
-    //private Node[] getModSet(Node n) {
-
-    //}
+    private void generateAssertionsAndAssumptions(List<Stmt> assertions, List<Stmt> assumptions , WhileStmt whileStmt){
+        ExprList invariantsList = whileStmt.getInvariantList();
+        for ( Expr e : invariantsList.getExprs()){
+               assertions.add(new AssertStmt( e ,e ));
+               assumptions.add(new AssumeStmt(e, e));
+        }
+    }
 
 }
