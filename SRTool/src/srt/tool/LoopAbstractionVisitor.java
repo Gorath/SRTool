@@ -5,7 +5,6 @@ import srt.ast.visitor.impl.DefaultVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class LoopAbstractionVisitor extends DefaultVisitor {
 
@@ -18,46 +17,37 @@ public class LoopAbstractionVisitor extends DefaultVisitor {
 
         List<Stmt> statements = new ArrayList<Stmt>();
 
-        // Generates and store a list of statements for the assertions and assumptions
-        List<Stmt> invariantAssertions =  new ArrayList<Stmt>();
-        List<Stmt> invariantAssumptions =  new ArrayList<Stmt>();
-        generateAssertionsAndAssumptions(invariantAssertions,invariantAssumptions,whileStmt);
+        // Generate and store a list of statements for the invariant assertions and assumptions
+        List<Stmt> invariantAssertions = new ArrayList<Stmt>();
+        List<Stmt> invariantAssumptions = new ArrayList<Stmt>();
+        generateInvariantAssertionsAndAssumptions(invariantAssertions, invariantAssumptions, whileStmt);
 
         // Append invariant assertions first
         statements.addAll(invariantAssertions);
 
-
         // Find the list of variables that may be modified
         Stmt whileBody = whileStmt.getBody();
-        ArrayList<Node> modset = whileBody.getModSet();
-        ArrayList<DeclRef> filteredModset =  new ArrayList<DeclRef>();
+        ArrayList<Node> modsetWithDuplicates = whileBody.getModSet();
+        ArrayList<DeclRef> modset =  new ArrayList<DeclRef>();
 
         // Removes duplicate variables found in the modset
-        for ( Node n : modset){
-            boolean duplicate = false;
-            for ( Node existing : filteredModset){
-                 if (((DeclRef)existing).getName().equals(((DeclRef)n).getName()) ){
-                     duplicate = true;
-                     break;
-                 }
-            }
-            if (!duplicate) filteredModset.add((DeclRef)n);
-        }
+        removeDuplicatesInModset(modsetWithDuplicates, modset);
 
         // Set each of the modified variables to be arbitrary
         // i.e. havoc all the variables in the modset
         List<Stmt> havocs = new ArrayList<Stmt>();
-        for (DeclRef variable :filteredModset){
+        for (DeclRef variable :modset){
             havocs.add(new HavocStmt(variable));
         }
         statements.addAll(havocs);
 
-        // Append invariant assumptions that were generated before
+        // Append invariant assumptions now that were generated from before
         statements.addAll(invariantAssumptions);
 
         // Execute loop body once inside an if statement
         List<Stmt> ifBody = new ArrayList<Stmt>();
 
+        // Removes unnecessary block statements to make it easier to debug
         removeBlockStatements(ifBody,whileBody);
 
         // Append invariant assertions to ensure all the invariants hold before
@@ -74,19 +64,35 @@ public class LoopAbstractionVisitor extends DefaultVisitor {
         return super.visit(new BlockStmt(statements,whileStmt));
 	}
 
+    // Removes duplicate variables found in the modset
+    private void removeDuplicatesInModset(ArrayList<Node> modsetWithDuplicates, ArrayList<DeclRef> modset) {
+        for (Node n : modsetWithDuplicates){
+            boolean duplicate = false;
+            for (Node existing : modset){
+                 if (((DeclRef)existing).getName().equals(((DeclRef)n).getName()) ){
+                     duplicate = true;
+                     break;
+                 }
+            }
+            if (!duplicate) modset.add((DeclRef)n);
+        }
+    }
+
+    // Removes unnecessary block statements to make it easier to debug
     private void removeBlockStatements(List<Stmt> ifBody, Stmt whileBody) {
-        if ( whileBody instanceof BlockStmt){
+        if (whileBody instanceof BlockStmt){
             ifBody.addAll(((BlockStmt)whileBody).getStmtList().getStatements());
         }   else{
             ifBody.add(whileBody);
         }
     }
 
-    private void generateAssertionsAndAssumptions(List<Stmt> assertions, List<Stmt> assumptions , WhileStmt whileStmt){
+    // Generate a list of statements for the invariant assertions and assumptions
+    private void generateInvariantAssertionsAndAssumptions(List<Stmt> invariantAssertions, List<Stmt> invariantAssumptions, WhileStmt whileStmt){
         ExprList invariantsList = whileStmt.getInvariantList();
-        for ( Expr e : invariantsList.getExprs()){
-               assertions.add(new AssertStmt( e ,e ));
-               assumptions.add(new AssumeStmt(e, e));
+        for (Expr expression : invariantsList.getExprs()){
+            invariantAssertions.add(new AssertStmt(expression, expression));
+            invariantAssumptions.add(new AssumeStmt(expression, expression));
         }
     }
 

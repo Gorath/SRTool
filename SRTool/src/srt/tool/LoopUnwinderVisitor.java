@@ -22,85 +22,90 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
 	public Object visit(WhileStmt whileStmt) {
         Stmt whileBody= whileStmt.getBody();
 
-        //these are the statements produced by this method.
         List<Stmt> statements = new ArrayList<Stmt>();
 
-        List<Stmt> invariants  = generateAssertionsFromInvariants(whileStmt);
-        List<Stmt> loopEnd = generateLoopEnd(whileStmt);
+        // Generate assertions for invariants
+        List<Stmt> invariantsAssertions  = generateAssertionsFromInvariants(whileStmt);
 
-        //even if we don't unwind the loop we will assert that the invariants still hold
-        //and reason about the unwinding depth.
-        statements.addAll(invariants);
-        statements.addAll(loopEnd);
+        // Generate unwinding assertion and assume
+        List<Stmt> unwindingAssertionAndAssume = generateUnwindingAssertionAndAssume(whileStmt);
 
-        //use default bound if bound provided is null
+        // Even if we don't unwind the loop we will assert that the invariants still hold
+        statements.addAll(invariantsAssertions);
+
+        // Add the unwinding assertion and assume
+        statements.addAll(unwindingAssertionAndAssume);
+
+        // Use default bound if bound provided is null
         int bound = whileStmt.getBound() == null? defaultUnwindBound : whileStmt.getBound().getValue();
 
-
-        //if we are not unwinding just check all the constraints.
+        // If we are not unwinding just check all the constraints
         if (bound == 0){
-            return convertListToStatement(statements,whileStmt);
+            return convertListOfStatementsToABlockStatement(statements, whileStmt);
         }
 
-        //unwind the loop as:
-        // invariants + while body
+        // Unwind the loop as: invariant assertions + if condition + while body
         for (int i = 0; i < bound; i++) {
-            List<Stmt> tmp = new ArrayList<Stmt>();
-            tmp.addAll(invariants);
-            removeBlockStatements(tmp, whileBody);
-            tmp.addAll(statements);
-            IfStmt ifStmt = new IfStmt(whileStmt.getCondition(), new BlockStmt(tmp) , new EmptyStmt());
-            //the new ifstatement consumes all  the previous statements.
+            List<Stmt> bufferStatements = new ArrayList<Stmt>();
+
+            // Add invariant assertions
+            bufferStatements.addAll(invariantsAssertions);
+
+            // Removes unnecessary block statements to make it easier to debug
+            removeBlockStatements(bufferStatements, whileBody);
+
+            // Add the previous list of statements
+            bufferStatements.addAll(statements);
+
+            // The new if statement contains all the previous statements
+            IfStmt ifStatement = new IfStmt(whileStmt.getCondition(), new BlockStmt(bufferStatements) , new EmptyStmt());
             statements.clear();
-            statements.add(ifStmt);
+            statements.add(ifStatement);
         }
 
-        return super.visit( convertListToStatement(statements,whileStmt));
+        return super.visit(convertListOfStatementsToABlockStatement(statements, whileStmt));
 	}
 
+    // Removes unnecessary block statements to make it easier to debug
     private void removeBlockStatements(List<Stmt> statements, Stmt whileBody){
-        //removes unecessary block statments... final output looks nicer
-        //although predication and SSA destroy it later.. but easier to debug.
-        if ( whileBody instanceof  BlockStmt){
+        if (whileBody instanceof  BlockStmt){
             statements.addAll(((BlockStmt) whileBody).getStmtList().getStatements());
         }else{
             statements.add(whileBody);
         }
     }
 
-    //there should be atleast one statement.
-    private static Stmt convertListToStatement(List<Stmt> statements, Node basedOn){
+    // Collates and converts the list of statements to one block statement
+    private Stmt convertListOfStatementsToABlockStatement(List<Stmt> statements, Node basedOn){
         if (statements.size() > 1){
-            return new BlockStmt(statements,basedOn);
+            return new BlockStmt(statements, basedOn);
         }
-        return  statements.get(0);
+        return statements.get(0);
     }
 
-    //this method generates the last assertions or assume for unwinding
-    private List<Stmt> generateLoopEnd(WhileStmt whileStmt){
-
-        AssertStmt loopAssert = new AssertStmt(new UnaryExpr(UnaryExpr.LNOT,whileStmt.getCondition()),whileStmt);
-        AssumeStmt loopAssume = new AssumeStmt(new UnaryExpr(UnaryExpr.LNOT,whileStmt.getCondition()));
+    // Generates the unwinding assertions and assume
+    private List<Stmt> generateUnwindingAssertionAndAssume(WhileStmt whileStmt){
+        AssertStmt unwindingAssert = new AssertStmt(new UnaryExpr(UnaryExpr.LNOT,whileStmt.getCondition()),whileStmt);
+        AssumeStmt unwindingAssume = new AssumeStmt(new UnaryExpr(UnaryExpr.LNOT,whileStmt.getCondition()));
 
         List<Stmt> statements = new ArrayList<Stmt>();
         if (unwindingAssertions) {
-            statements.add(loopAssert);
-            statements.add(loopAssume);
+            statements.add(unwindingAssert);
+            statements.add(unwindingAssume);
         } else {
-            statements.add(loopAssume);
+            statements.add(unwindingAssume);
         }
         return  statements;
     }
 
-    // this method converts each invariant to an assertion
-    private  List<Stmt> generateAssertionsFromInvariants(WhileStmt whileStmt){
+    // Converts each invariant to an assertion
+    private List<Stmt> generateAssertionsFromInvariants(WhileStmt whileStmt){
         List<Stmt> statements = new ArrayList<Stmt>();
         List<Expr> invariantsList = whileStmt.getInvariantList().getExprs();
         for (Expr expression: invariantsList) {
-            Stmt assertStmt = new AssertStmt(expression,expression);
+            Stmt assertStmt = new AssertStmt(expression, expression);
             statements.add(assertStmt);
         }
-        return  statements;
-
+        return statements;
     }
 }
