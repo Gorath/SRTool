@@ -65,9 +65,9 @@ public class SRTool {
         p = (Program) new SSAVisitor().visit(p);
 
         // Output the program as text after being transformed (for debugging)
-        // Uncomment the code below to see the output
-        // String programText = new PrinterVisitor().visit(p);
-        // System.out.println(programText);
+        // Comment the code below to hide the output
+        String programText = new PrinterVisitor().visit(p);
+        System.out.println(programText);
 
         // Collect the constraint expressions and variable names
         CollectConstraintsVisitor collectConstraintsVisitor = new CollectConstraintsVisitor();
@@ -108,8 +108,8 @@ public class SRTool {
             List<Integer> indexesFailed = getPropertiesThatFailed(queryResult);
 
             // for all the properties that have failed, we get the index and report the failure
-            for (int i = 0; i < indexesFailed.size(); i++) {
-                Tree tree = collectConstraintsVisitor.propertyNodes.get(indexesFailed.get(i)).getTokenInfo();
+            for (Integer anIndexesFailed : indexesFailed) {
+                Tree tree = collectConstraintsVisitor.propertyNodes.get(anIndexesFailed).getTokenInfo();
                 // Uncomment the code below to see which assertions failed (used for debugging)
                 // System.out.printf("Assertion failure on line:%s column:%s .\n", tree.getLine(), tree.getCharPositionInLine());
                 result.add(new AssertionFailure(tree));
@@ -123,16 +123,16 @@ public class SRTool {
 
     // Returns the indexes of the properties which returned false
     private List<Integer> getPropertiesThatFailed(String queryResult) {
-        List<Integer> res = new ArrayList<Integer>();
+        List<Integer> indexes = new ArrayList<Integer>();
 
         // Uses REGEX to correctly detect the indexes
         Pattern pattern = Pattern.compile("(\\d)(?=(\\s)*false)");
         Matcher matcher = pattern.matcher(queryResult);
 
         while (matcher.find()){
-            res.add(Integer.parseInt(matcher.group()));
+            indexes.add(Integer.parseInt(matcher.group()));
 
         }
-        return res;
+        return indexes;
     }
 }
