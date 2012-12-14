@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+//this class follows the slides. The variables have been named to be similiar to be the ones used in the lectures.
+
 public class PredicationVisitor extends DefaultVisitor {
+    public static final String defaultVariableType = "int";
     // The global predicate initialized to true;
     private Expr GLOBAL_PRED =  new IntLiteral(1);
     // A stack is used to store the current value for p. it initially contains true;
@@ -18,7 +21,7 @@ public class PredicationVisitor extends DefaultVisitor {
 
 	public PredicationVisitor() {
         super(true);
-        stack.push(GLOBAL_PRED);
+        stack.push(new IntLiteral(1));
 	}
 
     private String getNextName(){
@@ -30,7 +33,7 @@ public class PredicationVisitor extends DefaultVisitor {
         Expr e = ifStmt.getCondition();
         // q = p && e
         Expr q = new BinaryExpr(BinaryExpr.LAND,stack.peek(),e);
-        // r = p && e
+        // r = p && !e
         Expr r = new BinaryExpr(BinaryExpr.LAND,stack.peek(),new UnaryExpr(UnaryExpr.LNOT , e ));
         // declare P and Q variables and assign values appropriately.
         DeclRef Q = new DeclRef( getNextName());
@@ -77,7 +80,7 @@ public class PredicationVisitor extends DefaultVisitor {
 	public Object visit(AssumeStmt assumeStmt) {
         Expr condition = assumeStmt.getCondition();
         DeclRef A = new DeclRef( getNextName());
-        Decl declareStmnt = new Decl(A.getName(),"int");
+        Decl declareStmnt = new Decl(A.getName(), defaultVariableType);
         BinaryExpr binaryExpr = new BinaryExpr(BinaryExpr.LOR,
                                 new UnaryExpr(UnaryExpr.LNOT,gAndP()),
                                 condition);
@@ -94,7 +97,7 @@ public class PredicationVisitor extends DefaultVisitor {
          DeclRef x = havocStmt.getVariable();
          // get a fresh variable called h
          DeclRef h = new DeclRef(getNextName());
-         Decl declareStmnt = new Decl(h.getName(),"int");
+         Decl declareStmnt = new Decl(h.getName(),defaultVariableType);
          TernaryExpr te = new TernaryExpr(gAndP(),h,x);
          // x =  ( g and p ) ? h : x
          AssignStmt assign = new AssignStmt(x ,te);

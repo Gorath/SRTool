@@ -22,18 +22,18 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
 	public Object visit(WhileStmt whileStmt) {
         Stmt whileBody= whileStmt.getBody();
 
-        //these are the final statements produced by this method.
+        //these are the statements produced by this method.
         List<Stmt> statements = new ArrayList<Stmt>();
 
-        List<Stmt> assertions  = generateAssertionsFromInvariants(whileStmt);
+        List<Stmt> invariants  = generateAssertionsFromInvariants(whileStmt);
         List<Stmt> loopEnd = generateLoopEnd(whileStmt);
 
-        //even if we dont unwind the loop we will assert that the invariants still hold
-        //and reason about the uenwinding depth.
-        statements.addAll(assertions);
+        //even if we don't unwind the loop we will assert that the invariants still hold
+        //and reason about the unwinding depth.
+        statements.addAll(invariants);
         statements.addAll(loopEnd);
 
-        //use default bound if bound provided is 0; (int cant be null therefore we
+        //use default bound if bound provided is null
         int bound = whileStmt.getBound() == null? defaultUnwindBound : whileStmt.getBound().getValue();
 
 
@@ -43,10 +43,10 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
         }
 
         //unwind the loop as:
-        // assertions + while body
+        // invariants + while body
         for (int i = 0; i < bound; i++) {
             List<Stmt> tmp = new ArrayList<Stmt>();
-            tmp.addAll(assertions);
+            tmp.addAll(invariants);
             //removes unecessary block statments... final output looks nicer
             //although predication and SSA destroy it later.. but easier to debug.
             if ( whileBody instanceof  BlockStmt){
@@ -64,7 +64,7 @@ public class LoopUnwinderVisitor extends DefaultVisitor {
         return super.visit( convertListToStatement(statements,whileStmt));
 	}
 
-    //thereshould be atleast one statement.
+    //there should be atleast one statement.
     private static Stmt convertListToStatement(List<Stmt> statements, Node basedOn){
         if (statements.size() > 1){
             return new BlockStmt(statements,basedOn);

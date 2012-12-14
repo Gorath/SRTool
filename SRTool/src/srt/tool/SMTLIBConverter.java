@@ -19,49 +19,58 @@ public class SMTLIBConverter {
         {
             throw new IllegalArgumentException("No assertions.");
         }
+        // create a StringBuilder with a decent amount of memory
+        query = new StringBuilder(1600);
 
         // Start building the query string
-        String prog = "(set-logic QF_BV)\n";
-        prog += "(declare-fun main() Bool)\n";
+        query.append( "(set-logic QF_BV)\n");
+        query.append( "(declare-fun main() Bool)\n");
 
         // Function to convert a boolean to a bitvector of length 32 of either all 1's or all 0's
-        prog += "(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))\n";
+        query.append("(define-fun tobv32 ((p Bool)) (_ BitVec 32) (ite p (_ bv1 32) (_ bv0 32)))\n");
 
-        // Function to take a bit vector of length 32 and send back a bool
+        // Function to take a bit vector of length 32 and returns a bool
         // @result false if the input is all zeros
         // @result true otherwise
-        prog += "(define-fun tobool ((p (_ BitVec 32))) (Bool) (not (= p (_ bv0 32))))\n";
+        query.append("(define-fun tobool ((p (_ BitVec 32))) (Bool) (not (= p (_ bv0 32))))\n");
 
         // Convert variable names to SMT-LIB syntax
-        prog += generateVariableNames(variableNames);
+        generateVariableNames(variableNames);
 
-        for (int i = 0; i < propertyExprs.size(); i++) {
-            prog += "(declare-fun prop" + i + " () (Bool))\n";
-        }
+        //generate names for all the properties that will be used in the end.
+        generateVariablesForProperties(propertyExprs);
 
         exprConverter = new ExprToSmtlibVisitor();
 
         // Convert transition expressions to SMT-LIB syntax
-        prog += generateTransitionExpressions(transitionExprs);
+        generateTransitionExpressions(transitionExprs);
 
-        prog += generatePropertyPredicates(propertyExprs,0);
+        //recursively generate all the  properties to represent assertions.
+        query.append(generatePropertyPredicates(propertyExprs,0));
 
-        // Convert property expressions to SMT-LIB syntax
-        prog += "(assert (not ";
-        prog += generatePropertyFormula(propertyExprs,0);
-        prog += ") )";
+        //generate the final assertion
+        query.append("(assert (not ");
+        query.append(generatePropertyFormula(propertyExprs,0));
+        query.append( ") )");
 
-        // Build the query string for the smt solver
-        query = new StringBuilder(prog);
+        //execute the query
         query.append("(check-sat)\n");
 
+        //get the values for the properties as the result
         query.append("(get-value (");
         for (int i = 0; i < propertyExprs.size(); i++) {
             query.append("prop" + i + " ");
         }
         query.append("))");
 
+        //very help full for debugging purposes.
         System.out.println(query.toString());
+    }
+
+    private void generateVariablesForProperties(List<Expr> propertyExprs) {
+        for (int i = 0; i < propertyExprs.size(); i++) {
+            query.append("(declare-fun prop" + i + " () (Bool))\n");
+        }
     }
 
     private String generatePropertyPredicates(List<Expr> propertyExprs, int index) {
@@ -69,21 +78,16 @@ public class SMTLIBConverter {
             return "(assert (= prop" + index + " (tobool " + exprConverter.visit(propertyExprs.get(index)) + ")))\n" + generatePropertyPredicates(propertyExprs, index+1);
     }
 
-    private String generateVariableNames(Set<String> variableNames) {
-        String newVariableNames = "";
+    private void generateVariableNames(Set<String> variableNames ) {
         for (String currentVariable : variableNames) {
-            newVariableNames += "(declare-fun " + currentVariable + " () (_ BitVec 32))\n";
+            query.append( "(declare-fun " + currentVariable + " () (_ BitVec 32))\n");
         }
-        return newVariableNames;
     }
 
-    private String generateTransitionExpressions(List<Expr> transitionExprs) {
-        String newTransitionExprs = "";
+    private void generateTransitionExpressions(List<Expr> transitionExprs) {
         for (Expr exp : transitionExprs) {
-            newTransitionExprs += "(assert (tobool " + exprConverter.visit(exp) + "))\n";
-
+            query.append( "(assert (tobool " + exprConverter.visit(exp) + "))\n");
         }
-        return newTransitionExprs;
     }
 
     private String generatePropertyFormula(List<Expr> propertyExprs, int index) {
@@ -97,16 +101,5 @@ public class SMTLIBConverter {
         return query.toString();
     }
 
-    public List<Integer> getPropertiesThatFailed(String queryResult) {
-        List<Integer> res = new ArrayList<Integer>();
 
-        Pattern pattern = Pattern.compile("(\\d)(?=(\\s)*false)");
-        Matcher matcher = pattern.matcher(queryResult);
-
-        while (matcher.find()){
-            res.add(Integer.parseInt(matcher.group()));
-        }
-
-        return res;
-    }
 }

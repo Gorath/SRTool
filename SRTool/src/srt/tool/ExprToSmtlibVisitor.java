@@ -14,9 +14,11 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 		super(false);
 	}
 
+
+    // everything returns bitvectors.. carefully copied from the website and extensively tested.
 	@Override
 	public String visit(BinaryExpr expr) {
-		String operator = null;
+		String operator ;
 		switch(expr.getOperator())
 		{
 			case BinaryExpr.ADD:
@@ -102,7 +104,7 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 
 	@Override
 	public String visit(UnaryExpr unaryExpr) {
-		String operator = null;
+		String operator ;
 		switch(unaryExpr.getOperator())
 		{
 		case UnaryExpr.UMINUS:

@@ -6,11 +6,13 @@ void main (int x){
     assume (i==x);
 
     while (i < x)
-        inv(i >= 0 && i >= x)
-        {
+        inv(i == x)
+    {
         assert(i >= 0);
         i = i+1;
+        assume (0);
 
     }
+
     assert(i==x);
 }
