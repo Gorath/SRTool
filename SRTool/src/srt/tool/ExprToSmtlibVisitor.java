@@ -15,7 +15,8 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 	}
 
 
-    // everything returns bitvectors.. carefully copied from the website and extensively tested.
+    // Ensured everything returns bitvectors
+    // Carefully referred to the documentation and extensively tested
 	@Override
 	public String visit(BinaryExpr expr) {
 		String operator ;
@@ -88,8 +89,10 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
 		return declRef.getName();
 	}
 
+
 	@Override
 	public String visit(IntLiteral intLiteral) {
+        // Converting int to bitvector
         String s = String.format("%08x", intLiteral.getValue());
 		return "#x" + s;
 	}
@@ -102,6 +105,8 @@ public class ExprToSmtlibVisitor extends DefaultVisitor {
                     this.visit(ternaryExpr.getFalseExpr()));
 	}
 
+    // Ensured everything returns bitvectors
+    // Carefully referred to the documentation and extensively tested the unary operations
 	@Override
 	public String visit(UnaryExpr unaryExpr) {
 		String operator ;
